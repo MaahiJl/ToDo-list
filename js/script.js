@@ -60,111 +60,181 @@
     } 
     
 
-    renderTasks();  
-    
-    // همبرگر منو  
-    hamburger.addEventListener('click', function() {  
-        if (menu.style.display === 'block') {  
-            menu.style.display = 'none';   
-            hamburger.innerHTML = '☰';  
-            hamburger.style.transform = 'rotate(180deg)';  
-            hamburger.style.fontSize = '24px';  
-        } else {  
-            menu.style.display = 'block';  
-            hamburger.innerHTML = '+';  
-            hamburger.style.fontSize = '45px';  
-            hamburger.style.transform = 'rotate(45deg)';  
-        }  
-    });  
-    
-    // پاک کردن منو در صورت کلیک روی دیگر نقاط
-    document.addEventListener('click', function(event) {    
-        if (!hamburger.contains(event.target) && !menu.contains(event.target)) {  
-            menu.style.display = 'none';  
-            hamburger.innerHTML = '☰';   
-            hamburger.style.transform = 'rotate(180deg)';  
-            hamburger.style.fontSize = '24px';  
-            // پاک کردن مقادیر داخل اینپوت درر صورت کلیک در دیگر جاها 
-            todoInput.value = '';  
-        }  
-    });  
-    
-    // تودو تسک جدید
-    submitButton.addEventListener('click', function(){  
-        if (todoInput.value.trim() === "") {  
-            errorMessage.style.display = 'block';  
-            setTimeout(() => {  
-                errorMessage.style.display = 'none';  
-            }, 2000);  
-        } else {  
-            // ایجاد ابجکت تسک جدید
-            const newTask = {  
-                text: todoInput.value.trim(),  
-                completed: false  
-            };  
-            tasks.push(newTask); 
-            localStorage.setItem('tasks', JSON.stringify(tasks)); 
-            renderTasks();  
-            todoInput.value = '';  
-        }  
-    });  
-    
-    // پاک کردن تسک
-    todoTasks.addEventListener('click', function(event){  
-        if (event.target.classList.contains('todo__delete-icon')) {  
-            const todoTask = event.target.parentNode;  
-            const taskIndex = Array.from(todoTasks.children).indexOf(todoTask);  
-            tasks.splice(taskIndex, 1);  
-            localStorage.setItem('tasks', JSON.stringify(tasks));  
-            renderTasks();   
-        }  
-    });  
-    
+renderTasks();  
 
-    todoTasks.addEventListener('dblclick', function(event) {  
-        if (event.target.classList.contains('todo__task-text')) {  
-            const todoTask = event.target.closest('.todo__task');  
-            const checkBox = todoTask.querySelector('.todo__checkbox');   
-            const taskIndex = Array.from(todoTasks.children).indexOf(todoTask);  
-            
-            if (event.target.style.textDecoration === 'none' || event.target.style.textDecoration === '') {  
-                event.target.style.textDecoration = 'line-through';   
-                checkBox.checked = true;   
-                tasks[taskIndex].completed = true; 
-            } else {  
-                event.target.style.textDecoration = 'none';   
-                checkBox.checked = false;   
-                tasks[taskIndex].completed = false;  
-            }  
-            localStorage.setItem('tasks', JSON.stringify(tasks)); 
-        }  
-    });  
-    
+// همبرگر منو  
+function toggleMenu() {  
+    if (menu.style.display === 'block') {  
+        menu.style.display = 'none';  
+        hamburger.innerHTML = '☰';  
+        hamburger.style.transform = 'rotate(180deg)';  
+        hamburger.style.fontSize = '24px';  
+    } else {  
+        menu.style.display = 'block';  
+        hamburger.innerHTML = '+';  
+        hamburger.style.fontSize = '45px';  
+        hamburger.style.transform = 'rotate(45deg)';  
+    }  
+}  
 
-    todoTasks.addEventListener('click', function(event) {  
-        if (event.target.classList.contains('todo__checkbox')) {  
-            const todoTask = event.target.closest('.todo__task');  
-            const todoText = todoTask.querySelector('.todo__task-text');  
-            const taskIndex = Array.from(todoTasks.children).indexOf(todoTask);  
-            
-            if (event.target.checked) {   
-                todoText.style.textDecoration = 'line-through';  
-                tasks[taskIndex].completed = true;  
-            } else {  
-                todoText.style.textDecoration = 'none';   
-                tasks[taskIndex].completed = false; 
-            }  
-            localStorage.setItem('tasks', JSON.stringify(tasks)); 
+hamburger.addEventListener('click', toggleMenu);  
+hamburger.addEventListener('touchstart', function(event) {  
+    event.preventDefault();  
+    toggleMenu();  
+});  
+    
+// پاک کردن منو در صورت کلیک روی دیگر نقاط  
+function closeMenuAndClearInput() {  
+    menu.style.display = 'none';  
+    hamburger.innerHTML = '☰';  
+    hamburger.style.transform = 'rotate(180deg)';  
+    hamburger.style.fontSize = '24px';  
+    // پاک کردن مقادیر داخل اینپوت در صورت کلیک در دیگر جاها  
+    todoInput.value = '';  
+}  
+
+// رویداد برای کلیک  
+document.addEventListener('click', function(event) {    
+    if (!hamburger.contains(event.target) && !menu.contains(event.target)) {  
+        closeMenuAndClearInput();  
+    }  
+});  
+
+// رویداد برای لمس  
+document.addEventListener('touchstart', function(event) {  
+    if (!hamburger.contains(event.target) && !menu.contains(event.target)) {  
+        closeMenuAndClearInput();  
+    }  
+});
+    
+// تودو تسک جدید  
+function handleSubmit() {  
+    if (todoInput.value.trim() === "") {  
+        errorMessage.style.display = 'block';  
+        setTimeout(() => {  
+            errorMessage.style.display = 'none';  
+        }, 2000);  
+    } else {  
+        // ایجاد ابجکت تسک جدید  
+        const newTask = {  
+            text: todoInput.value.trim(),  
+            completed: false  
+        };  
+        tasks.push(newTask);  
+        localStorage.setItem('tasks', JSON.stringify(tasks));  
+        renderTasks();  
+        todoInput.value = '';  
+    }  
+}  
+
+// رویداد برای کلیک  
+submitButton.addEventListener('click', handleSubmit);  
+
+// رویداد برای لمس  
+submitButton.addEventListener('touchstart', function(event) {  
+    event.preventDefault(); // جلوگیری از عمل پیش‌فرض لمسی  
+    handleSubmit();  
+});
+    
+// پاک کردن تسک  
+function deleteTask(event) {  
+    if (event.target.classList.contains('todo__delete-icon')) {  
+        const todoTask = event.target.parentNode;  
+        const taskIndex = Array.from(todoTasks.children).indexOf(todoTask);  
+        tasks.splice(taskIndex, 1);  
+        localStorage.setItem('tasks', JSON.stringify(tasks));  
+        renderTasks();  
+    }  
+}  
+
+// رویداد برای کلیک  
+todoTasks.addEventListener('click', deleteTask);  
+
+// رویداد برای لمس  
+todoTasks.addEventListener('touchstart', function(event) {  
+    // استفاده از setTimeout برای جلوگیری از تداخل با رویداد ‘click’  
+    setTimeout(() => {  
+        deleteTask(event);  
+    }, 0);  
+});
+    
+// دابل کلیک
+todoTasks.addEventListener('dblclick', function(event) {  
+    if (event.target.classList.contains('todo__task-text')) {  
+        const todoTask = event.target.closest('.todo__task');  
+        const checkBox = todoTask.querySelector('.todo__checkbox');   
+        const taskIndex = Array.from(todoTasks.children).indexOf(todoTask);  
+        
+        if (event.target.style.textDecoration === 'none' || event.target.style.textDecoration === '') {  
+            event.target.style.textDecoration = 'line-through';   
+            checkBox.checked = true;   
+            tasks[taskIndex].completed = true; 
+        } else {  
+            event.target.style.textDecoration = 'none';   
+            checkBox.checked = false;   
+            tasks[taskIndex].completed = false;  
         }  
-    });
+        localStorage.setItem('tasks', JSON.stringify(tasks)); 
+    }  
+});  
+// دابل لمس
+
+todoTasks.addEventListener('touchend', function(event) {  
+    if (event.target.classList.contains('todo__task-text')) {  
+        const todoTask = event.target.closest('.todo__task');  
+        const checkBox = todoTask.querySelector('.todo__checkbox');   
+        const taskIndex = Array.from(todoTasks.children).indexOf(todoTask);  
+        
+        if (event.target.style.textDecoration === 'none' || event.target.style.textDecoration === '') {  
+            event.target.style.textDecoration = 'line-through';   
+            checkBox.checked = true;   
+            tasks[taskIndex].completed = true; 
+        } else {  
+            event.target.style.textDecoration = 'none';   
+            checkBox.checked = false;   
+            tasks[taskIndex].completed = false;  
+        }  
+        localStorage.setItem('tasks', JSON.stringify(tasks)); 
+    }  
+});  
     
-    // تغییر تم وبسایت
-    // متغییر ها
-    let firstTheme = _id('theme-1');
-    let secondTheme = _id('theme-2');
-    let thirdTheme = _id('theme-3');
+// خط کشیدن روی تسک در صورت انجام شدن  
+function toggleTaskCompletion(event) {  
+    if (event.target.classList.contains('todo__checkbox')) {  
+        const todoTask = event.target.closest('.todo__task');  
+        const todoText = todoTask.querySelector('.todo__task-text');  
+        const taskIndex = Array.from(todoTasks.children).indexOf(todoTask);  
+
+        if (event.target.checked) {  
+            todoText.style.textDecoration = 'line-through';  
+            tasks[taskIndex].completed = true;  
+        } else {  
+            todoText.style.textDecoration = 'none';  
+            tasks[taskIndex].completed = false;  
+        }  
+        localStorage.setItem('tasks', JSON.stringify(tasks));  
+    }  
+}  
+
+// رویداد برای کلیک  
+todoTasks.addEventListener('click', toggleTaskCompletion);  
+
+// رویداد برای لمس  
+todoTasks.addEventListener('touchstart', function(event) {  
+    if (event.target.classList.contains('todo__checkbox')) {  
+        // مانع از تداخل با رویداد کلیک  
+        event.preventDefault();   
+        toggleTaskCompletion(event);  
+    }  
+});
     
-    // تابع برای بارگذاری تم از localStorage  
+// تغییر تم وبسایت
+// متغییر ها
+let firstTheme = _id('theme-1');
+let secondTheme = _id('theme-2');
+let thirdTheme = _id('theme-3');
+    
+ // تابع برای بارگذاری تم از localStorage  
 function loadTheme() {  
     const savedTheme = localStorage.getItem('selectedTheme');  
     
@@ -496,7 +566,6 @@ function applyTheme(theme) {
         todoInput.style.outlineColor = '#3B1E54';  // Input outline color  
         
         const todoSubmitButton = document.querySelector('.todo__submit-button');  
-        // todoSubmitButton.style.backgroundColor = '#9B7EBD'; 
         todoSubmitButton.style.background = '#9b7ebd42';
     
     
@@ -530,47 +599,47 @@ function applyTheme(theme) {
     
 } 
 
-// تم دیفالت  
-document.getElementById('theme-1').addEventListener('click', function() {  
-    applyTheme('theme-1');  
-    localStorage.setItem('selectedTheme', 'theme-1'); // ذخیره تم در localStorage  
+// آرایه‌ای از تم‌ها  
+const themes = [  
+    'theme-1',  
+    'theme-2',  
+    'theme-3',  
+    'theme-4',  
+    'theme-5',  
+    'theme-6',  
+    'theme-7',  
+    'theme-8'  
+];  
+
+// تابع برای اعمال تم و ذخیره آن در localStorage  
+function setTheme(theme) {  
+    applyTheme(theme);  
+    localStorage.setItem('selectedTheme', theme); // ذخیره تم در localStorage  
+}  
+
+// افزودن رویدادهای کلیک و لمس برای هر تم  
+themes.forEach(theme => {  
+    const themeElement = document.getElementById(theme);  
+    
+    // رویداد کلیک  
+    themeElement.addEventListener('click', function() {  
+        setTheme(theme);  
+    });  
+    
+    // رویداد لمسی  
+    themeElement.addEventListener('touchstart', function(event) {  
+        event.preventDefault(); // جلوگیری از تداخل با رویداد کلیک  
+        setTheme(theme);  
+    });  
 });  
 
-// تم دوم  
-document.getElementById('theme-2').addEventListener('click', function() {  
-    applyTheme('theme-2');  
-    localStorage.setItem('selectedTheme', 'theme-2'); // ذخیره تم در localStorage  
-});  
-// تم سوم
-document.getElementById('theme-3').addEventListener('click', function() {  
-    applyTheme('theme-3');  
-    localStorage.setItem('selectedTheme', 'theme-3'); // ذخیره تم در localStorage  
-});  
-// تم چهارم
-document.getElementById('theme-4').addEventListener('click', function() {  
-    applyTheme('theme-4');  
-    localStorage.setItem('selectedTheme', 'theme-4'); // ذخیره تم در localStorage  
-});  
-// تم پنجم
-document.getElementById('theme-5').addEventListener('click', function() {  
-    applyTheme('theme-5');  
-    localStorage.setItem('selectedTheme', 'theme-5'); // ذخیره تم در localStorage  
-});  
-// تم ششم
-document.getElementById('theme-6').addEventListener('click', function() {  
-    applyTheme('theme-6');  
-    localStorage.setItem('selectedTheme', 'theme-6'); // ذخیره تم در localStorage  
-});  
-// تم هفتم
-document.getElementById('theme-7').addEventListener('click', function() {  
-    applyTheme('theme-7');  
-    localStorage.setItem('selectedTheme', 'theme-7'); // ذخیره تم در localStorage  
-});  
-// تم هشتم
-document.getElementById('theme-8').addEventListener('click', function() {  
-    applyTheme('theme-8');  
-    localStorage.setItem('selectedTheme', 'theme-8'); // ذخیره تم در localStorage  
-});  
+// بارگذاری تم انتخاب شده از localStorage در شروع  
+document.addEventListener('DOMContentLoaded', function() {  
+    const selectedTheme = localStorage.getItem('selectedTheme');  
+    if (selectedTheme) {  
+        applyTheme(selectedTheme);  
+    }  
+});
 
 // بارگذاری تم در ابتدای بارگذاری صفحه  
 loadTheme();
